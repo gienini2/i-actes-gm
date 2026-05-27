@@ -1,0 +1,1883 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>I·ACTES — Registre d'Actes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #f5f4f0;
+  --surface:  #ffffff;
+  --surface2: #f0efe9;
+  --border:   #e2e0d8;
+  --border2:  #c8c5bb;
+  --text:     #1a1916;
+  --text2:    #6b6860;
+  --text3:    #a8a59e;
+  --accent:   #1a3a6b;
+  --accent-l: #e8edf5;
+  --accent2:  #c8342a;
+  --green:    #1a6b3a;
+  --green-l:  #e8f5ed;
+  --amber:    #8a5a00;
+  --amber-l:  #fdf3e0;
+  --mono:     'IBM Plex Mono', monospace;
+  --sans:     'IBM Plex Sans', sans-serif;
+  --r:        6px;
+  --r2:       10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px}
+
+/* ── HEADER ── */
+.header{
+  background:var(--accent);color:#fff;
+  padding:0 2rem;height:52px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+}
+.header-brand{display:flex;align-items:center;gap:12px}
+.header-badge{
+  width:32px;height:32px;border-radius:6px;
+  background:rgba(255,255,255,.15);
+  font-family:var(--mono);font-size:10px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;letter-spacing:-.5px;
+}
+.header-title{font-family:var(--mono);font-size:13px;font-weight:500;letter-spacing:.05em}
+.header-sub{font-size:11px;opacity:.6;margin-left:4px}
+.header-user{display:flex;align-items:center;gap:10px;font-size:12px;opacity:.85}
+.btn-logout{
+  font-family:var(--mono);font-size:10px;padding:4px 10px;
+  border:1px solid rgba(255,255,255,.3);border-radius:4px;
+  background:transparent;color:#fff;cursor:pointer;
+}
+.btn-logout:hover{background:rgba(255,255,255,.1)}
+
+/* ── LOGIN ── */
+#login-screen{
+  position:fixed;inset:0;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;z-index:200;
+}
+.login-box{
+  width:360px;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--r2);
+  padding:2rem;
+}
+.login-logo{
+  text-align:center;margin-bottom:1.5rem;
+}
+.login-logo .badge{
+  width:48px;height:48px;border-radius:10px;background:var(--accent);
+  font-family:var(--mono);font-size:12px;font-weight:600;color:#fff;
+  display:inline-flex;align-items:center;justify-content:center;
+  margin-bottom:10px;letter-spacing:-.5px;
+}
+.login-logo h1{font-family:var(--mono);font-size:16px;font-weight:600;color:var(--text)}
+.login-logo p{font-size:11px;color:var(--text3);margin-top:2px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;font-weight:500;color:var(--text2);margin-bottom:5px;font-family:var(--mono);letter-spacing:.03em}
+.field input{
+  width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--r);
+  font-family:var(--sans);font-size:13px;background:var(--surface2);color:var(--text);outline:none;
+}
+.field input:focus{border-color:var(--accent);background:#fff}
+.btn-primary{
+  width:100%;padding:10px;background:var(--accent);border:none;border-radius:var(--r);
+  color:#fff;font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.05em;
+  cursor:pointer;
+}
+.btn-primary:hover{background:#14306a}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.login-error{
+  margin-top:10px;padding:8px 12px;background:#fef2f2;border:1px solid #fca5a5;
+  border-radius:var(--r);color:#b91c1c;font-size:12px;display:none;
+}
+
+/* ── MAIN LAYOUT ── */
+#app{display:none;flex-direction:column;min-height:100vh}
+.toolbar{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:.75rem 2rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+}
+.toolbar-left{display:flex;align-items:center;gap:8px;flex:1}
+.search-wrap{
+  display:flex;align-items:center;gap:8px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);
+  padding:6px 12px;flex:1;max-width:320px;
+}
+.search-wrap svg{flex-shrink:0;color:var(--text3)}
+.search-wrap input{
+  background:none;border:none;font-size:13px;color:var(--text);outline:none;width:100%;
+  font-family:var(--sans);
+}
+.search-wrap input::placeholder{color:var(--text3)}
+.filter-select{
+  padding:7px 10px;border:1px solid var(--border);border-radius:var(--r);
+  background:var(--surface2);font-size:12px;color:var(--text2);
+  font-family:var(--mono);outline:none;cursor:pointer;
+}
+.count-badge{
+  font-family:var(--mono);font-size:11px;color:var(--text3);
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:20px;padding:3px 10px;
+}
+.btn-new{
+  display:flex;align-items:center;gap:6px;
+  padding:8px 16px;background:var(--accent);border:none;border-radius:var(--r);
+  color:#fff;font-family:var(--mono);font-size:11px;font-weight:500;
+  cursor:pointer;white-space:nowrap;letter-spacing:.03em;
+}
+.btn-new:hover{background:#14306a}
+
+/* ── TABLE ── */
+.table-wrap{flex:1;padding:1.5rem 2rem;overflow-x:auto}
+.actes-table{width:100%;border-collapse:collapse;background:var(--surface);border-radius:var(--r2);overflow:hidden;border:1px solid var(--border)}
+.actes-table th{
+  background:var(--surface2);border-bottom:1px solid var(--border);
+  padding:10px 14px;text-align:left;font-family:var(--mono);font-size:10px;
+  font-weight:600;color:var(--text2);letter-spacing:.08em;text-transform:uppercase;
+  white-space:nowrap;
+}
+.actes-table td{
+  padding:11px 14px;border-bottom:.5px solid var(--border);
+  font-size:13px;vertical-align:middle;
+}
+.actes-table tr:last-child td{border-bottom:none}
+.actes-table tr:hover td{background:var(--surface2);cursor:pointer}
+.num-cell{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent)}
+.codi-badge{
+  display:inline-block;font-family:var(--mono);font-size:10px;font-weight:600;
+  padding:2px 8px;border-radius:3px;background:var(--accent-l);color:var(--accent);
+  border:1px solid rgba(26,58,107,.15);
+}
+.persona-cell{font-weight:500}
+.lloc-cell{font-size:12px;color:var(--text2)}
+.data-cell{font-family:var(--mono);font-size:11px;color:var(--text2);white-space:nowrap}
+.agent-cell{font-family:var(--mono);font-size:11px;color:var(--text3)}
+.empty-state{
+  text-align:center;padding:4rem 2rem;
+  font-family:var(--mono);font-size:12px;color:var(--text3);
+}
+.empty-icon{font-size:36px;margin-bottom:12px;opacity:.3}
+.loading{text-align:center;padding:3rem;font-family:var(--mono);font-size:12px;color:var(--text3)}
+
+/* ── MODAL NOVA ACTA ── */
+.modal-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.35);z-index:300;
+  align-items:flex-start;justify-content:center;
+  padding:2rem 1rem;overflow-y:auto;
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r2);width:100%;max-width:700px;
+  margin:auto;
+}
+.modal-header{
+  padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.modal-header h2{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--text)}
+.modal-close{
+  width:28px;height:28px;border-radius:6px;border:1px solid var(--border);
+  background:transparent;cursor:pointer;font-size:16px;color:var(--text2);
+  display:flex;align-items:center;justify-content:center;
+}
+.modal-close:hover{background:var(--surface2)}
+.modal-body{padding:1.5rem}
+.modal-footer{
+  padding:1rem 1.5rem;border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;
+}
+
+/* ── FORM ── */
+.form-section{margin-bottom:1.5rem}
+.form-section-title{
+  font-family:var(--mono);font-size:10px;font-weight:600;color:var(--text2);
+  text-transform:uppercase;letter-spacing:.1em;
+  margin-bottom:.75rem;padding-bottom:.5rem;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;
+}
+.form-row{display:grid;gap:10px;margin-bottom:10px}
+.col2{grid-template-columns:1fr 1fr}
+.col3{grid-template-columns:1fr 1fr 1fr}
+.col-auto{grid-template-columns:1fr auto}
+.fld label{display:block;font-size:11px;font-weight:500;color:var(--text2);margin-bottom:4px;font-family:var(--mono)}
+.fld input,.fld select,.fld textarea{
+  width:100%;padding:8px 11px;border:1px solid var(--border);border-radius:var(--r);
+  font-size:13px;font-family:var(--sans);background:var(--surface2);color:var(--text);outline:none;
+}
+.fld input:focus,.fld select:focus,.fld textarea:focus{
+  border-color:var(--accent);background:#fff;
+}
+.fld textarea{resize:vertical;min-height:120px;line-height:1.7}
+.fld input[readonly]{color:var(--text2);cursor:default}
+.badge-auto{
+  font-size:9px;background:var(--green-l);color:var(--green);
+  border:1px solid rgba(26,107,58,.2);border-radius:3px;
+  padding:1px 6px;margin-left:5px;font-family:var(--mono);font-weight:600;
+}
+.input-group{display:flex;gap:6px}
+.input-group input{flex:1}
+.btn-sherlock{
+  padding:8px 12px;border:1px solid var(--border);border-radius:var(--r);
+  background:var(--surface2);font-size:11px;font-family:var(--mono);
+  color:var(--text2);cursor:pointer;white-space:nowrap;
+}
+.btn-sherlock:hover{background:var(--border);color:var(--text)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
+.chip{
+  padding:5px 12px;border-radius:20px;border:1px solid var(--border);
+  background:transparent;font-size:12px;color:var(--text2);cursor:pointer;
+  font-family:var(--sans);
+}
+.chip:hover{border-color:var(--border2);color:var(--text)}
+.chip.active{border-color:var(--accent);background:var(--accent-l);color:var(--accent)}
+.extra-input{display:none;margin-top:8px}
+.extra-input.show{display:block}
+.fold-btn{
+  font-size:11px;color:var(--text3);cursor:pointer;background:none;border:none;
+  padding:4px 0;display:flex;align-items:center;gap:4px;font-family:var(--mono);
+}
+.fold-btn:hover{color:var(--text2)}
+.folded{display:none;margin-top:10px;padding:12px;background:var(--surface2);border-radius:var(--r);border:1px solid var(--border)}
+.folded.open{display:block}
+.hint{font-size:11px;color:var(--text3);margin-top:4px}
+.warn-hint{
+  font-size:11px;color:var(--amber);background:var(--amber-l);
+  padding:6px 10px;border-radius:var(--r);margin-bottom:8px;
+  border:1px solid rgba(138,90,0,.15);
+}
+.num-preview{
+  font-family:var(--mono);font-size:20px;font-weight:600;color:var(--accent);
+  letter-spacing:.04em;
+}
+.num-preview span{color:var(--text3)}
+
+/* ── CONFIRM MODAL ── */
+.confirm-card{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--r);padding:1rem 1.25rem;margin-bottom:1rem;
+  font-size:12px;
+}
+.confirm-row{display:flex;justify-content:space-between;padding:3px 0;border-bottom:.5px solid var(--border)}
+.confirm-row:last-child{border-bottom:none}
+.confirm-row .lbl{color:var(--text2);font-family:var(--mono);font-size:11px}
+.confirm-row .val{font-weight:500;color:var(--text);text-align:right;font-family:var(--mono);font-size:11px}
+
+/* ── DETALL MODAL ── */
+.detall-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem}
+.detall-field .lbl{font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
+.detall-field .val{font-size:13px;color:var(--text);font-weight:500}
+.detall-text{
+  background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);
+  padding:14px 16px;font-size:13px;line-height:1.8;color:var(--text);
+  white-space:pre-wrap;font-family:var(--sans);
+}
+.audit-entry{
+  display:flex;align-items:center;gap:10px;padding:6px 10px;
+  border-radius:var(--r);margin-bottom:4px;font-size:12px;
+}
+.audit-crear{background:var(--green-l);color:var(--green)}
+.audit-consultar{background:var(--accent-l);color:var(--accent)}
+.ae-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+.ae-text{flex:1;font-family:var(--mono)}
+.ae-ts{font-size:10px;opacity:.7;font-family:var(--mono)}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);
+  background:var(--text);color:#fff;padding:10px 20px;border-radius:var(--r2);
+  font-family:var(--mono);font-size:12px;z-index:999;
+  opacity:0;transition:opacity .2s;pointer-events:none;
+}
+.toast.show{opacity:1}
+.toast.ok{background:var(--green)}
+.toast.err{background:var(--accent2)}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="badge">DA</div>
+      <h1>I·ACTES</h1>
+      <p>Registre d'actes administratives · GM Figaró-Montmany</p>
+    </div>
+    <div class="field">
+      <label>Usuari</label>
+      <input type="text" id="li-user" placeholder="nom.cognoms" autocomplete="username" autocapitalize="none"
+        onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn-primary" id="li-btn" onclick="doLogin()">Accedir</button>
+    <div class="login-error" id="li-err"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="header">
+    <div class="header-brand">
+      <div class="header-badge">DA</div>
+      <span class="header-title">I·ACTES</span>
+      <span class="header-sub">Registre d'actes</span>
+    </div>
+    <div class="header-user">
+      <span id="hdr-user">—</span>
+      <button class="btn-logout" onclick="doLogout()">Sortir</button>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <div class="search-wrap">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="search-input" placeholder="Cercar per número, persona, lloc..." oninput="filterTable()">
+      </div>
+      <select class="filter-select" id="filter-codi" onchange="filterTable()">
+        <option value="">Tots els codis</option>
+        <option value="A-10">A-10 · Genèrica</option>
+        <option value="A-09">A-09 · Vehicle abandonat</option>
+        <option value="A-13">A-13 · Precinte vehicle</option>
+        <option value="A-13b">A-13b · Desprecinte vehicle</option>
+        <option value="A-14">A-14 · Precinte local</option>
+        <option value="A-14b">A-14b · Desprecinte local</option>
+        <option value="A-17">A-17 · Manifestació</option>
+        <option value="A-205">A-205 · Animal (recollida)</option>
+        <option value="A-206">A-206 · Animal (entrega)</option>
+        <option value="AA-31">AA-31 · Danys via</option>
+        <option value="D-OM-1">D-OM-1 · OOMM genèrica</option>
+        <option value="D-OM-2">D-OM-2 · OOMM civisme</option>
+        <option value="D-10">D-10 · LO 4/2015</option>
+        <option value="D-10bis">D-10bis · Armes/drogues</option>
+        <option value="A-46">A-46 · Infracció horari</option>
+      </select>
+      <span class="count-badge" id="count-badge">0 actes</span>
+    </div>
+    <button class="btn-new" onclick="openNova()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+      Nova acta
+    </button>
+  </div>
+
+  <div class="table-wrap">
+    <table class="actes-table" id="actes-table">
+      <thead>
+        <tr>
+          <th>Núm. registre</th>
+          <th>Codi</th>
+          <th>Data / Hora</th>
+          <th>Persona</th>
+          <th>Lloc</th>
+          <th>Agent</th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
+        <tr><td colspan="6" class="loading">Carregant...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MODAL NOVA ACTA -->
+<div class="modal-overlay" id="modal-nova">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Nova acta · <span id="nova-num-hdr" style="color:var(--accent)">—</span></h2>
+      <button class="modal-close" onclick="closeModal('modal-nova')">×</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- SECTION: Tipus -->
+      <div class="form-section">
+        <div class="form-section-title">Tipus d'acta</div>
+        <div class="form-row col2">
+          <div class="fld">
+            <label>Codi</label>
+            <select id="f-codi" onchange="onCodiChange()">
+              <option value="A-10">A-10 · Acta genèrica</option>
+              <option value="A-09">A-09 · Vehicle abandonat</option>
+              <option value="A-13">A-13 · Precinte de vehicle</option>
+              <option value="A-13b">A-13b · Desprecinte de vehicle</option>
+              <option value="A-14">A-14 · Precinte de local</option>
+              <option value="A-14b">A-14b · Desprecinte de local</option>
+              <option value="A-17">A-17 · Manifestació</option>
+              <option value="A-205">A-205 · Recollida animal</option>
+              <option value="A-206">A-206 · Entrega animal</option>
+              <option value="AA-31">AA-31 · Danys via pública per vehicle</option>
+              <option value="D-OM-1">D-OM-1 · Denúncia OOMM genèrica</option>
+              <option value="D-OM-2">D-OM-2 · Denúncia OOMM civisme</option>
+              <option value="D-10">D-10 · LO 4/2015 art. 36/37</option>
+              <option value="D-10bis">D-10bis · LO 4/2015 armes/drogues</option>
+              <option value="A-46">A-46 · Acta d'infracció d'horari</option>
+            </select>
+          </div>
+          <div class="fld">
+            <label>Número de registre</label>
+            <div class="num-preview" id="f-num-preview"><span>—</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION: Dades generals -->
+      <div class="form-section">
+        <div class="form-section-title">Dades generals</div>
+        <div class="form-row col3">
+          <div class="fld">
+            <label>Data <span class="badge-auto">auto</span></label>
+            <input type="date" id="f-data">
+          </div>
+          <div class="fld">
+            <label>Hora inici <span class="badge-auto">auto</span></label>
+            <input type="time" id="f-hora-inici">
+          </div>
+          <div class="fld">
+            <label>Hora fi</label>
+            <input type="time" id="f-hora-fi">
+          </div>
+        </div>
+        <div class="form-row col2">
+          <div class="fld">
+            <label>Instructor/a (TIP)</label>
+            <input type="text" id="f-tip-instructor" placeholder="ex: 1009">
+          </div>
+          <div class="fld">
+            <label>Secretari/ària (TIP) <span style="font-size:10px;color:var(--text3)">opcional</span></label>
+            <input type="text" id="f-tip-secretari" placeholder="ex: 1010">
+          </div>
+        </div>
+        <div class="fld">
+          <div>
+            <label>Tipus d'acta</label>
+            <select id="tipus_acta">
+              <option value="">-- Selecciona --</option>
+              <option value="ofici">D'ofici</option>
+              <option value="ordre">Per ordre de</option>
+              <option value="requeriment">A requeriment del demandant</option>
+            </select>
+          </div>
+          <label>Destinació</label>
+          <input type="text" id="f-destinacio" value="GM Figaró" readonly>
+        </div>
+      </div>
+
+      <!-- SECTION: Lloc -->
+      <div class="form-section">
+        <div class="form-section-title">Lloc on s'efectua l'acta</div>
+        <div class="fld" style="margin-bottom:10px">
+          <label>Adreça <span style="font-size:10px;color:var(--text3)">· Sherlock pròximament</span></label>
+          <div class="input-group">
+            <input type="text" id="f-lloc-adreca" placeholder="Tipus de via, nom i número">
+            <button class="btn-sherlock" disabled title="Pròximament">⌖ Sherlock</button>
+          </div>
+        </div>
+        <div class="form-row col2">
+          <div class="fld">
+            <label>Municipi</label>
+            <input type="text" id="f-lloc-municipi" value="Figaró-Montmany">
+          </div>
+          <div class="fld">
+            <label>Comarca</label>
+            <input type="text" id="f-lloc-comarca" value="Vallès Oriental">
+          </div>
+        </div>
+        <div class="fld">
+          <label style="margin-bottom:6px">Tipus de lloc</label>
+          <div class="chips" id="chips-lloc">
+            <button class="chip" onclick="selectChip('lloc','habitatge',this)">Habitatge</button>
+            <button class="chip" onclick="selectChip('lloc','local',this)">Local comercial</button>
+            <button class="chip" onclick="selectChip('lloc','altres',this)">Altres</button>
+          </div>
+          <div class="extra-input" id="extra-local">
+            <input type="text" id="f-lloc-local-nom" placeholder="Activitat i nom del local">
+          </div>
+          <div class="extra-input" id="extra-altres">
+            <input type="text" id="f-lloc-altres-nom" placeholder="Descripció i nom">
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION: Persona -->
+      <div class="form-section">
+        <div class="form-section-title">Persona implicada <span style="font-weight:400;opacity:.6;font-size:10px">· opcional</span></div>
+        <div class="fld" style="margin-bottom:10px">
+          <label>Identificació <span style="font-size:10px;color:var(--text3)">· integrat amb Sherlock</span></label>
+          <div class="input-group">
+            <input type="text" id="f-persona-display" placeholder="Cognom1 Cognom2, Nom" readonly>
+            <button class="btn-sherlock" onclick="openPersonaModal()">⌖ Sherlock / Manual</button>
+          </div>
+        </div>
+        <div id="persona-preview" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;font-size:12px;color:var(--text2)"></div>
+      </div>
+
+      <!-- SECTION: Article (condicional D-OM) -->
+      <div class="form-section" id="section-article" style="display:none">
+        <div class="form-section-title">Infracció</div>
+        <div class="fld">
+          <label>Article infringit</label>
+          <input type="text" id="f-article" placeholder="ex: Art. 126.1 / Art. 36.6 LO 4/2015">
+        </div>
+      </div>
+
+      <!-- SECTION: Contingut -->
+      <div class="form-section">
+        <div class="form-section-title">Contingut de l'acta</div>
+        <div class="fld">
+          <textarea id="f-contingut" placeholder="Descriu els fets de l'actuació..."></textarea>
+          <div class="hint">El traductor de Bitàcola es pot activar a requeriment</div>
+        </div>
+      </div>
+
+
+      <!-- SECTION: A-09 Vehicle abandonat -->
+      <div class="form-section" id="section-a09" style="display:none">
+        <div class="form-section-title">A-09 · Dades del vehicle</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+          <div><label class="form-label">Matrícula</label><input class="form-input" id="f-a09-matricula" type="text" placeholder="0000-AAA"></div>
+          <div><label class="form-label">Marca</label><input class="form-input" id="f-a09-marca" type="text"></div>
+          <div><label class="form-label">Model</label><input class="form-input" id="f-a09-model" type="text"></div>
+          <div><label class="form-label">Color</label><input class="form-input" id="f-a09-color" type="text"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div><label class="form-label">Bastidor (VIN)</label><input class="form-input" id="f-a09-bastidor" type="text"></div>
+          <div><label class="form-label">Destinació</label><input class="form-input" id="f-a09-destinacio" type="text" placeholder="Dipòsit, grua..."></div>
+        </div>
+        <div style="margin-bottom:8px"><label class="form-label">Descripció dels fets</label><textarea class="form-input" id="f-a09-fets" rows="3" style="resize:vertical"></textarea></div>
+        <div class="form-section-title" style="font-size:11px;margin-top:8px">Danys / Elements a consignar</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px">
+          <label><input type="checkbox" id="f-a09-fas"> Fars davant</label>
+          <label><input type="checkbox" id="f-a09-farsd"> Fars darrere</label>
+          <label><input type="checkbox" id="f-a09-capo"> Capó — <input class="form-input" id="f-a09-txt-capo" type="text" style="width:140px;display:inline" placeholder="descripció"></label>
+          <label><input type="checkbox" id="f-a09-portes"> Portes davant — <input class="form-input" id="f-a09-txt-pordav" type="text" style="width:120px;display:inline" placeholder="descripció"></label>
+          <label><input type="checkbox" id="f-a09-portesd"> Portes darrere — <input class="form-input" id="f-a09-txt-pordarr" type="text" style="width:120px;display:inline" placeholder="descripció"></label>
+          <label><input type="checkbox" id="f-a09-vidres"> Vidres — <input class="form-input" id="f-a09-txt-vidres" type="text" style="width:140px;display:inline" placeholder="descripció"></label>
+          <label><input type="checkbox" id="f-a09-retro"> Retrovisors — <input class="form-input" id="f-a09-txt-retros" type="text" style="width:120px;display:inline" placeholder="descripció"></label>
+          <label><input type="checkbox" id="f-a09-sostre"> Sostre — <input class="form-input" id="f-a09-txt-sostre" type="text" style="width:140px;display:inline" placeholder="descripció"></label>
+          <label><input type="checkbox" id="f-a09-rodes"> Rodes — <input class="form-input" id="f-a09-txt-rodes" type="text" style="width:140px;display:inline" placeholder="núm. que falten"></label>
+          <label><input type="checkbox" id="f-a09-maleter"> Maleter — <input class="form-input" id="f-a09-txt-maleter" type="text" style="width:140px;display:inline" placeholder="descripció"></label>
+          <label><input type="checkbox" id="f-a09-inter"> Interior davant — <input class="form-input" id="f-a09-txt-intdav" type="text" style="width:110px;display:inline" placeholder="descripció"></label>
+          <label><input type="checkbox" id="f-a09-interd"> Interior darrere — <input class="form-input" id="f-a09-txt-intdarr" type="text" style="width:110px;display:inline" placeholder="descripció"></label>
+          <label><input type="checkbox" id="f-a09-danysint"> Danys interiors — <input class="form-input" id="f-a09-txt-danysint" type="text" style="width:110px;display:inline" placeholder="descripció"></label>
+          <label><input type="checkbox" id="f-a09-matricules"> Matrícula(es) — <input class="form-input" id="f-a09-txt-matricules" type="text" style="width:110px;display:inline" placeholder="descripció"></label>
+          <label><input type="checkbox" id="f-a09-obert"> Vehicle obert</label>
+          <label><input type="checkbox" id="f-a09-sip"> Sense ITV/Segur (SIP)</label>
+          <label><input type="checkbox" id="f-a09-itv"> ITV caducada</label>
+          <label><input type="checkbox" id="f-a09-noass"> Sense assegurança</label>
+          <label><input type="checkbox" id="f-a09-baixadm"> Baixa administrativa</label>
+        </div>
+      </div>
+
+      <!-- SECTION: A-13 / A-13b Precinte / Desprecinte vehicle -->
+      <div class="form-section" id="section-a13" style="display:none">
+        <div class="form-section-title" id="section-a13-title">A-13 · Precinte de vehicle</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+          <div><label class="form-label">Matrícula</label><input class="form-input" id="f-a13-matricula" type="text" placeholder="0000-AAA"></div>
+          <div><label class="form-label">Marca</label><input class="form-input" id="f-a13-marca" type="text"></div>
+          <div><label class="form-label">Model</label><input class="form-input" id="f-a13-model" type="text"></div>
+          <div><label class="form-label">Color</label><input class="form-input" id="f-a13-color" type="text"></div>
+        </div>
+        <div><label class="form-label">Bastidor (VIN)</label><input class="form-input" id="f-a13-bastidor" type="text" style="max-width:300px"></div>
+        <div style="margin:10px 0">
+          <label class="form-label">Mesura cautelar</label>
+          <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:4px;font-size:12px">
+            <label><input type="radio" name="a13-mesura" value="immob"> Immobilització</label>
+            <label><input type="radio" name="a13-mesura" value="cepo"> Cep</label>
+            <label><input type="radio" name="a13-mesura" value="diposit"> Dipòsit</label>
+            <label><input type="radio" name="a13-mesura" value="custo"> Custòdia</label>
+            <label><input type="radio" name="a13-mesura" value="crua"> CRUA</label>
+            <label><input type="radio" name="a13-mesura" value="pito"> Pitó</label>
+          </div>
+        </div>
+        <div style="margin:10px 0">
+          <label class="form-label">Categoria permís conductor</label>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:4px;font-size:12px">
+            <label><input type="radio" name="a13-perm" value="A"> A</label>
+            <label><input type="radio" name="a13-perm" value="A1"> A1</label>
+            <label><input type="radio" name="a13-perm" value="A2"> A2</label>
+            <label><input type="radio" name="a13-perm" value="AM"> AM</label>
+            <label><input type="radio" name="a13-perm" value="B"> B</label>
+            <label><input type="radio" name="a13-perm" value="B1"> B1</label>
+            <label><input type="radio" name="a13-perm" value="c1"> C1</label>
+            <label><input type="radio" name="a13-perm" value="d1"> D1</label>
+            <label><input type="radio" name="a13-perm" value="d"> D</label>
+            <label><input type="radio" name="a13-perm" value="E"> E</label>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+          <div><label class="form-label">Expedient multa</label><input class="form-input" id="f-a13-exp" type="text"></div>
+          <div><label class="form-label">Article</label><input class="form-input" id="f-a13-article" type="text"></div>
+          <div><label class="form-label">Text infracció</label><input class="form-input" id="f-a13-text" type="text"></div>
+        </div>
+        <div id="section-a13-danys" style="display:none">
+          <label class="form-label">Descripció de danys</label>
+          <textarea class="form-input" id="f-a13-danys" rows="2" style="resize:vertical"></textarea>
+        </div>
+        <div class="form-section-title" style="font-size:11px;margin-top:10px">Dades del conductor</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div><label class="form-label">Nom</label><input class="form-input" id="f-a13-cond-nom" type="text"></div>
+          <div><label class="form-label">Cognom 1</label><input class="form-input" id="f-a13-cond-cog1" type="text"></div>
+          <div><label class="form-label">Cognom 2</label><input class="form-input" id="f-a13-cond-cog2" type="text"></div>
+          <div><label class="form-label">Doc. tipus</label><input class="form-input" id="f-a13-cond-doctip" type="text" placeholder="DNI/NIE/Passaport"></div>
+          <div><label class="form-label">Doc. núm.</label><input class="form-input" id="f-a13-cond-docnum" type="text"></div>
+          <div><label class="form-label">Tel.</label><input class="form-input" id="f-a13-cond-tel" type="text"></div>
+          <div><label class="form-label">Adreça</label><input class="form-input" id="f-a13-cond-adreca" type="text"></div>
+          <div><label class="form-label">Municipi</label><input class="form-input" id="f-a13-cond-muni" type="text"></div>
+          <div><label class="form-label">Comarca</label><input class="form-input" id="f-a13-cond-comarrca" type="text"></div>
+        </div>
+      </div>
+
+      <!-- SECTION: A-14 / A-14b Precinte / Desprecinte local -->
+      <div class="form-section" id="section-a14" style="display:none">
+        <div class="form-section-title" id="section-a14-title">A-14 · Precinte de local</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+          <div><label class="form-label">Jutjat</label><input class="form-input" id="f-a14-jutjat" type="text"></div>
+          <div><label class="form-label">Núm. auto</label><input class="form-input" id="f-a14-auto" type="text"></div>
+          <div><label class="form-label">Ordre / Decret</label><input class="form-input" id="f-a14-ordre" type="text"></div>
+        </div>
+        <div style="margin-bottom:10px">
+          <label class="form-label">Auto judicial</label>
+          <div style="display:flex;gap:14px;margin-top:4px;font-size:12px">
+            <label><input type="radio" name="a14-autojudici" value="si"> Sí</label>
+            <label><input type="radio" name="a14-autojudici" value="no" checked> No</label>
+          </div>
+        </div>
+        <div class="form-section-title" style="font-size:11px">Números de precinte</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px">
+          <div><label class="form-label">Precinte 1</label><input class="form-input" id="f-a14-p1" type="text"></div>
+          <div><label class="form-label">Precinte 2</label><input class="form-input" id="f-a14-p2" type="text"></div>
+          <div><label class="form-label">Precinte 3</label><input class="form-input" id="f-a14-p3" type="text"></div>
+          <div><label class="form-label">Precinte 4</label><input class="form-input" id="f-a14-p4" type="text"></div>
+          <div><label class="form-label">Precinte 5</label><input class="form-input" id="f-a14-p5" type="text"></div>
+          <div><label class="form-label">Precinte 6</label><input class="form-input" id="f-a14-p6" type="text"></div>
+          <div><label class="form-label">Precinte 7</label><input class="form-input" id="f-a14-p7" type="text"></div>
+          <div><label class="form-label">Precinte 8</label><input class="form-input" id="f-a14-p8" type="text"></div>
+        </div>
+        <div class="form-section-title" style="font-size:11px">Vehicle (si escau)</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px">
+          <div><label class="form-label">Marca</label><input class="form-input" id="f-a14-cotxe-marca" type="text"></div>
+          <div><label class="form-label">Model</label><input class="form-input" id="f-a14-cotxe-model" type="text"></div>
+          <div><label class="form-label">Matrícula</label><input class="form-input" id="f-a14-cotxe-matri" type="text"></div>
+          <div><label class="form-label">Color</label><input class="form-input" id="f-a14-cotxe-color" type="text"></div>
+          <div><label class="form-label">Tipus</label><input class="form-input" id="f-a14-cotxe-tipus" type="text"></div>
+          <div><label class="form-label">Nac.</label><input class="form-input" id="f-a14-cotxe-nac" type="text"></div>
+          <div><label class="form-label">Km</label><input class="form-input" id="f-a14-cotxe-km" type="text"></div>
+        </div>
+        <!-- Bloc addicional A-14b: tipus establiment -->
+        <div id="section-a14b-estab" style="display:none">
+          <div class="form-section-title" style="font-size:11px">Tipus d'establiment</div>
+          <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:8px;font-size:12px">
+            <label><input type="radio" name="a14b-estab" value="bar"> Bar</label>
+            <label><input type="radio" name="a14b-estab" value="barM"> Bar musical</label>
+            <label><input type="radio" name="a14b-estab" value="rest"> Restaurant</label>
+            <label><input type="radio" name="a14b-estab" value="disco"> Discoteca</label>
+            <label><input type="radio" name="a14b-estab" value="locu"> Locutori</label>
+            <label><input type="radio" name="a14b-estab" value="comerc"> Comerç</label>
+            <label><input type="radio" name="a14b-estab" value="altres"> Altres</label>
+          </div>
+          <div><label class="form-label">Nom de l'establiment</label><input class="form-input" id="f-a14b-nom-estab" type="text" style="max-width:400px"></div>
+          <div style="margin-top:8px"><label class="form-label">Altres (descripció)</label><input class="form-input" id="f-a14b-altres" type="text" style="max-width:400px"></div>
+        </div>
+      </div>
+
+      <!-- SECTION: A-46 Infracció d'horari -->
+      <div class="form-section" id="section-a46" style="display:none">
+        <div class="form-section-title">A-46 · Local i titular</div>
+        <div class="fld" style="margin-bottom:10px">
+          <label>Local <span style="font-size:10px;color:var(--text3)">· Sherlock</span></label>
+          <div class="input-group">
+            <input type="text" id="f-a46-local-display" placeholder="Cerca nom del local..." oninput="searchLocal(this.value)">
+            <button class="btn-sherlock" onclick="clearLocal()">✕</button>
+          </div>
+          <input type="hidden" id="f-a46-local-hm-id">
+          <div id="a46-local-results" style="display:none;border:1px solid var(--border);border-radius:var(--r);background:var(--surface);max-height:160px;overflow-y:auto;margin-top:4px"></div>
+        </div>
+        <div class="form-row col2">
+          <div class="fld"><label>Activitat del local</label><input type="text" id="f-a46-activitat-local" placeholder="ex: Bar-restaurant"></div>
+          <div class="fld"><label>Telèfon del local</label><input type="text" id="f-a46-telefon-local" placeholder="ex: 93 842 0000"></div>
+        </div>
+        <div class="form-section-title" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">Titular del local</div>
+        <div class="fld"><label>Nom / Raó social (persona física o jurídica)</label><input type="text" id="f-a46-titular-nom" placeholder="ex: Burger King España SL / Joan Pérez García"></div>
+        <div class="form-row col2">
+          <div class="fld"><label>Tipus doc. titular</label><select id="f-a46-titular-doc-tipus"><option value="">—</option><option value="NIF">NIF</option><option value="CIF">CIF</option><option value="NIE">NIE</option><option value="Passaport">Passaport</option></select></div>
+          <div class="fld"><label>Núm. document titular</label><input type="text" id="f-a46-titular-doc-num" placeholder="ex: B-12345678"></div>
+        </div>
+        <div class="fld"><label>Nom responsable legal</label><input type="text" id="f-a46-titular-responsable" placeholder="Nom i cognoms del responsable legal"></div>
+        <div class="form-row col2" style="margin-top:8px">
+          <div class="fld"><label>Adreça del titular</label><input type="text" id="f-a46-titular-adreca" placeholder="Via, nom i número"></div>
+          <div class="fld"><label>Municipi del titular</label><input type="text" id="f-a46-titular-municipi" placeholder="Municipi"></div>
+        </div>
+        <div class="form-row col2">
+          <div class="fld"><label>Telèfon del titular</label><input type="text" id="f-a46-titular-tel" placeholder="ex: 93 842 0000"></div>
+          <div class="fld" style="display:flex;align-items:flex-end">
+            <button class="btn-sherlock" onclick="openTitularModal()" style="width:100%">⊕ Dades filiació titular...</button>
+          </div>
+        </div>
+        <div class="form-section-title" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">Resultat de la inspecció</div>
+        <div class="form-row col2" style="align-items:flex-start">
+          <div class="fld">
+            <label>Presenta llicència municipal</label>
+            <div style="display:flex;gap:12px;margin-top:4px">
+              <label style="font-weight:400"><input type="radio" name="a46-llicencia" value="si" onchange="toggleA46('llicencia',true)"> Sí</label>
+              <label style="font-weight:400"><input type="radio" name="a46-llicencia" value="no" checked onchange="toggleA46('llicencia',false)"> No</label>
+            </div>
+          </div>
+          <div class="fld" id="a46-llicencia-detall" style="display:none"><label>Activitat llicència</label><input type="text" id="f-a46-llicencia-activitat" placeholder="Activitat autoritzada"></div>
+        </div>
+        <div class="form-row col3" id="a46-llicencia-extra" style="display:none">
+          <div class="fld"><label>Data llicència</label><input type="date" id="f-a46-llicencia-data"></div>
+          <div class="fld"><label>Núm. expedient</label><input type="text" id="f-a46-llicencia-num-exp" placeholder="EXP-2019/045"></div>
+          <div class="fld"><label>Aforament (persones)</label><input type="number" id="f-a46-aforament" min="0"></div>
+        </div>
+        <div style="margin-top:8px">
+          <label style="font-size:12px;font-weight:500;color:var(--text2)">Presenta pòlissa d'assegurança RC</label>
+          <div style="display:flex;gap:12px;margin-top:4px">
+            <label style="font-weight:400"><input type="radio" name="a46-polissa" value="si" onchange="toggleA46('polissa',true)"> Sí</label>
+            <label style="font-weight:400"><input type="radio" name="a46-polissa" value="no" checked onchange="toggleA46('polissa',false)"> No</label>
+          </div>
+        </div>
+        <div id="a46-polissa-extra" style="display:none;margin-top:8px">
+          <div class="form-row col2">
+            <div class="fld"><label>Companyia asseguradora</label><input type="text" id="f-a46-asseguradora"></div>
+            <div class="fld"><label>Núm. pòlissa</label><input type="text" id="f-a46-polissa-num"></div>
+          </div>
+          <div class="form-row col2">
+            <div class="fld"><label>Data caducitat rebut</label><input type="date" id="f-a46-polissa-caducitat"></div>
+            <div class="fld"><label>Import cobertura RC</label><input type="text" id="f-a46-polissa-import" placeholder="ex: 600.000 €"></div>
+          </div>
+        </div>
+        <div style="margin-top:10px;display:grid;gap:6px">
+          <div style="display:flex;align-items:center;gap:16px">
+            <label style="min-width:260px;font-size:12px">Local obert al públic</label>
+            <label style="font-weight:400"><input type="radio" name="a46-obert" value="si"> Sí</label>
+            <label style="font-weight:400"><input type="radio" name="a46-obert" value="no" checked> No</label>
+            <input type="number" id="f-a46-persones-dins" placeholder="nº persones" min="0" style="width:110px;padding:4px 8px;border:1px solid var(--border);border-radius:var(--r);font-size:12px">
+          </div>
+          <div style="display:flex;align-items:center;gap:16px">
+            <label style="min-width:260px;font-size:12px">Música en funcionament</label>
+            <label style="font-weight:400"><input type="radio" name="a46-musica" value="si"> Sí</label>
+            <label style="font-weight:400"><input type="radio" name="a46-musica" value="no" checked> No</label>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px">
+            <label style="min-width:260px;font-size:12px">Serveixen begudes als clients</label>
+            <label style="font-weight:400"><input type="radio" name="a46-begudes" value="si"> Sí</label>
+            <label style="font-weight:400"><input type="radio" name="a46-begudes" value="no" checked> No</label>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px">
+            <label style="min-width:260px;font-size:12px">Llums encesos (desallotjament)</label>
+            <label style="font-weight:400"><input type="radio" name="a46-llums" value="si"> Sí</label>
+            <label style="font-weight:400"><input type="radio" name="a46-llums" value="no" checked> No</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION: A-205 Recollida d'animal -->
+      <div class="form-section" id="section-a205" style="display:none">
+        <div class="form-section-title">A-205 · Dades de l'animal</div>
+
+        <!-- Especie -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+          <div>
+            <label class="form-label">Espècie</label>
+            <div style="display:flex;gap:14px;margin-top:4px">
+              <label style="font-weight:400"><input type="radio" name="a205-especie" value="gos"> Gos</label>
+              <label style="font-weight:400"><input type="radio" name="a205-especie" value="gat"> Gat</label>
+              <label style="font-weight:400"><input type="radio" name="a205-especie" value="altres"> Altres</label>
+            </div>
+          </div>
+          <div>
+            <label class="form-label">Sexe</label>
+            <div style="display:flex;gap:14px;margin-top:4px">
+              <label style="font-weight:400"><input type="radio" name="a205-sexe" value="mascle"> Mascle</label>
+              <label style="font-weight:400"><input type="radio" name="a205-sexe" value="femella"> Femella</label>
+            </div>
+          </div>
+          <div>
+            <label class="form-label">Talla</label>
+            <div style="display:flex;gap:14px;margin-top:4px">
+              <label style="font-weight:400"><input type="radio" name="a205-talla" value="gran"> Gran</label>
+              <label style="font-weight:400"><input type="radio" name="a205-talla" value="mitja"> Mitjana</label>
+              <label style="font-weight:400"><input type="radio" name="a205-talla" value="petit"> Petita</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pel, Raca, Color -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+          <div>
+            <label class="form-label">Pel</label>
+            <div style="display:flex;gap:14px;margin-top:4px">
+              <label style="font-weight:400"><input type="radio" name="a205-pel" value="curt"> Curt</label>
+              <label style="font-weight:400"><input type="radio" name="a205-pel" value="llarg"> Llarg</label>
+            </div>
+          </div>
+          <div>
+            <label class="form-label" for="f-a205-raca">Raca</label>
+            <input class="form-input" id="f-a205-raca" type="text" placeholder="Raca de l'animal">
+          </div>
+          <div>
+            <label class="form-label" for="f-a205-color">Color / marques</label>
+            <input class="form-input" id="f-a205-color" type="text" placeholder="Color i marques">
+          </div>
+        </div>
+
+        <!-- Xip -->
+        <div style="display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:end;margin-bottom:6px">
+          <div>
+            <label class="form-label">Xip identificador</label>
+            <div style="display:flex;gap:14px;margin-top:4px">
+              <label style="font-weight:400"><input type="radio" name="a205-xip" value="si" onchange="toggleA205Xip(true)"> Si</label>
+              <label style="font-weight:400"><input type="radio" name="a205-xip" value="no" checked onchange="toggleA205Xip(false)"> No</label>
+            </div>
+          </div>
+          <div id="a205-xip-detall" style="display:none">
+            <label class="form-label" for="f-a205-xip-num">Numero de xip</label>
+            <input class="form-input" id="f-a205-xip-num" type="text" placeholder="15 digits">
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <span style="font-size:11px;color:var(--text3);font-family:var(--mono)">Les actes no es poden modificar un cop creades</span>
+      <div style="display:flex;gap:8px">
+        <button class="btn-sherlock" onclick="closeModal('modal-nova')">Cancel·lar</button>
+        <button class="btn-new" onclick="preConfirmar()" style="padding:8px 20px">Revisar i confirmar →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TITULAR (filiació) — A-46 -->
+<div class="modal-overlay" id="modal-titular">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header">
+      <h2>Dades filiació del titular</h2>
+      <button class="modal-close" onclick="closeModal('modal-titular')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="warn-hint">Camps opcionals. Omplir només si es disposa de la documentació del titular.</div>
+      <div class="form-row col3" style="margin-bottom:10px">
+        <div class="fld"><label>Data naix. titular</label><input type="date" id="t-naix-data"></div>
+        <div class="fld"><label>Localitat naix.</label><input type="text" id="t-naix-loc" placeholder="Localitat"></div>
+        <div class="fld"><label>Comarca/Prov.</label><input type="text" id="t-naix-comarca" placeholder="Comarca"></div>
+      </div>
+      <div class="form-row col2" style="margin-bottom:10px">
+        <div class="fld"><label>País naix.</label><input type="text" id="t-naix-pais" value="Espanya"></div>
+        <div class="fld"></div>
+      </div>
+      <div class="form-row col2" style="margin-bottom:10px">
+        <div class="fld"><label>Nom del pare</label><input type="text" id="t-nom-pare" placeholder="Nom complet"></div>
+        <div class="fld"><label>Nom de la mare</label><input type="text" id="t-nom-mare" placeholder="Nom complet"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sherlock" onclick="closeModal('modal-titular')">Cancel·lar</button>
+      <button class="btn-new" onclick="confirmarTitular()" style="padding:8px 18px">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONFIRMACIÓ -->
+<div class="modal-overlay" id="modal-confirm">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <h2>Confirmar acta</h2>
+      <button class="modal-close" onclick="closeModal('modal-confirm')">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="confirm-summary"></div>
+      <div class="warn-hint">
+        Revisa les dades. Un cop creada, l'acta <strong>no es podrà modificar ni eliminar</strong>.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sherlock" onclick="closeModal('modal-confirm');openModal('modal-nova')">← Tornar</button>
+      <button class="btn-new" id="btn-confirmar" onclick="confirmarActa()" style="padding:8px 20px;background:var(--green)">
+        ✓ Crear acta
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PERSONA -->
+<div class="modal-overlay" id="modal-persona">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <h2>Dades de la persona</h2>
+      <button class="modal-close" onclick="closeModal('modal-persona')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="fld" style="margin-bottom:1rem">
+        <label>Cerca a Sherlock (hermano_mayor.db)</label>
+        <div class="input-group">
+          <input type="text" id="sherlock-q" placeholder="Cognom o DNI..." oninput="sherlockSearch()">
+        </div>
+        <div id="sherlock-results" style="margin-top:6px"></div>
+      </div>
+      <div style="text-align:center;font-size:11px;color:var(--text3);margin:12px 0;font-family:var(--mono)">── o introdueix manualment ──</div>
+      <div class="form-row col3" style="margin-bottom:10px">
+        <div class="fld"><label>Primer cognom</label><input type="text" id="p-cog1"></div>
+        <div class="fld"><label>Segon cognom</label><input type="text" id="p-cog2"></div>
+        <div class="fld"><label>Nom</label><input type="text" id="p-nom"></div>
+      </div>
+      <div class="form-row col3" style="margin-bottom:10px">
+        <div class="fld">
+          <label>Tipus doc.</label>
+          <select id="p-doc-tipus">
+            <option>DNI</option><option>NIE</option><option>Passaport</option><option>Altres</option>
+          </select>
+        </div>
+        <div class="fld"><label>Número</label><input type="text" id="p-doc-num"></div>
+        <div class="fld"><label>Data naix.</label><input type="date" id="p-naix-data"></div>
+      </div>
+      <div class="form-row col3" style="margin-bottom:10px">
+        <div class="fld"><label>Localitat naix.</label><input type="text" id="p-naix-loc"></div>
+        <div class="fld"><label>Comarca/Prov.</label><input type="text" id="p-naix-comarca"></div>
+        <div class="fld"><label>País</label><input type="text" id="p-naix-pais" value="Espanya"></div>
+      </div>
+      <div class="form-row col2" style="margin-bottom:10px">
+        <div class="fld"><label>Nom del pare</label><input type="text" id="p-pare"></div>
+        <div class="fld"><label>Nom de la mare</label><input type="text" id="p-mare"></div>
+      </div>
+      <div class="fld" style="margin-bottom:8px"><label>Adreça habitual</label><input type="text" id="p-adr" placeholder="Via, nom i número"></div>
+      <div class="form-row col3" style="margin-bottom:10px">
+        <div class="fld"><label>Municipi</label><input type="text" id="p-mun"></div>
+        <div class="fld"><label>Comarca/Prov.</label><input type="text" id="p-com"></div>
+        <div class="fld"><label>Telèfon</label><input type="text" id="p-tel"></div>
+      </div>
+      <button class="fold-btn" onclick="toggleFold('adr-temp')">
+        <span id="fi-adr-temp">▶</span> Adreça temporal (quasi mai s'utilitza)
+      </button>
+      <div class="folded" id="adr-temp">
+        <div class="warn-hint">Pràcticament no s'utilitza. Si és la mateixa, escriu "La mateixa".</div>
+        <div class="fld" style="margin-bottom:8px"><input type="text" id="p-adr-t" placeholder='"La mateixa" o adreça completa'></div>
+        <div class="form-row col3">
+          <div class="fld"><label>Municipi</label><input type="text" id="p-mun-t"></div>
+          <div class="fld"><label>Telèfon</label><input type="text" id="p-tel-t"></div>
+          <div class="fld"><label>Fi vigència</label><input type="date" id="p-fi-t"></div>
+        </div>
+      </div>
+      <div style="margin-top:1rem">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--text2)">
+          <input type="checkbox" id="p-alta-hm"> Donar d'alta a hermano_mayor.db si no existeix
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sherlock" onclick="closeModal('modal-persona')">Cancel·lar</button>
+      <button class="btn-new" onclick="confirmarPersona()" style="padding:8px 18px">Confirmar persona</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALL -->
+<div class="modal-overlay" id="modal-detall">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="detall-num" style="font-family:var(--mono);color:var(--accent)">—</h2>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn-new" id="btn-generar-word" onclick="generarPreview()" style="padding:6px 14px;font-size:11px">↓ Generar Word</button>
+        <button class="modal-close" onclick="closeModal('modal-detall')">×</button>
+      </div>
+    </div>
+    <div class="modal-body" id="detall-body">
+      <div class="loading">Carregant...</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PREVIEW WORD -->
+<div class="modal-overlay" id="modal-preview">
+  <div class="modal" style="max-width:780px">
+    <div class="modal-header">
+      <h2 id="preview-title" style="font-family:var(--mono);color:var(--accent)">Previsualització</h2>
+      <button class="modal-close" onclick="closeModal('modal-preview')">×</button>
+    </div>
+    <div style="padding:.75rem 1.5rem;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center">
+      <span style="font-size:11px;color:var(--text2);font-family:var(--mono)">Previsualització · els testimonis s'afegeixen a mà al Word</span>
+      <div style="margin-left:auto;display:flex;gap:8px">
+        <button class="btn-sherlock" onclick="closeModal('modal-preview')">Tancar</button>
+        <button class="btn-new" onclick="downloadWord()" style="padding:8px 16px;background:var(--accent)">↓ Descarregar .docx</button>
+      </div>
+    </div>
+    <div style="padding:1.5rem;max-height:65vh;overflow-y:auto;background:#fff">
+      <div id="preview-content">Carregant...</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const BACKEND = "https://localhost:10002";
+let token = null, currentUser = null, allActes = [], llocsChip = null;
+let sherlockTimer = null;
+
+// ── AUTH ──────────────────────────────────────────────────────────
+async function doLogin() {
+  const user = document.getElementById("li-user").value.trim();
+  const err  = document.getElementById("li-err");
+  const btn  = document.getElementById("li-btn");
+  err.style.display = "none";
+  if (!user) { showErr("Introdueix el teu identificador"); return; }
+  btn.disabled = true; btn.textContent = "Verificant...";
+  try {
+    const r = await fetch(`${BACKEND}/api/login`, {
+      method: "POST", headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({username: user})
+    });
+    const d = await r.json();
+    if (!d.ok) { showErr(d.error || "Credencials incorrectes"); btn.disabled=false; btn.textContent="Accedir"; return; }
+    token = d.token;
+    currentUser = { username: d.username, displayName: d.displayName, role: d.role };
+    localStorage.setItem("da_token", token);
+    startApp();
+  } catch(e) {
+    showErr("Error de connexió al servidor");
+    btn.disabled = false; btn.textContent = "Accedir";
+  }
+}
+
+async function checkSession() {
+  const saved = localStorage.getItem("da_token");
+  if (!saved) return;
+  try {
+    const r = await fetch(`${BACKEND}/api/check-session`, {
+      method: "POST", headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({token: saved})
+    });
+    const d = await r.json();
+    if (d.ok) {
+      token = saved;
+      currentUser = {username: d.username, displayName: d.displayName, role: d.role};
+      startApp();
+    } else { localStorage.removeItem("da_token"); }
+  } catch(e) {}
+}
+
+function doLogout() {
+  token = null; currentUser = null;
+  localStorage.removeItem("da_token");
+  document.getElementById("app").style.display = "none";
+  document.getElementById("login-screen").style.display = "flex";
+  document.getElementById("li-btn").disabled = false;
+  document.getElementById("li-btn").textContent = "Accedir";
+}
+
+function showErr(msg) {
+  const e = document.getElementById("li-err");
+  e.textContent = msg; e.style.display = "block";
+}
+
+// ── APP ───────────────────────────────────────────────────────────
+async function startApp() {
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("app").style.display = "flex";
+  document.getElementById("hdr-user").textContent = currentUser.displayName || currentUser.username;
+  await loadActes();
+}
+
+async function loadActes() {
+  try {
+    const r = await fetch(`${BACKEND}/api/actes/`, {
+      headers: {"Authorization": `Bearer ${token}`}
+    });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error);
+    allActes = d.actes || [];
+    renderTable(allActes);
+  } catch(e) {
+    document.getElementById("table-body").innerHTML =
+      `<tr><td colspan="6" class="empty-state"><div class="empty-icon">⚠</div>Error carregant actes: ${e.message}</td></tr>`;
+  }
+}
+
+function renderTable(actes) {
+  const tbody = document.getElementById("table-body");
+  document.getElementById("count-badge").textContent = `${actes.length} acte${actes.length !== 1 ? "s" : ""}`;
+  if (!actes.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty-state"><div class="empty-icon">📋</div>Cap acta registrada</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = actes.map(a => {
+    const persona = a.persona_cognom1
+      ? `${a.persona_cognom1}${a.persona_cognom2 ? " " + a.persona_cognom2 : ""}, ${a.persona_nom || ""}`
+      : `<span style="color:var(--text3);font-style:italic">No identificada</span>`;
+    return `<tr onclick="openDetall(${a.id})">
+      <td class="num-cell">${a.num_registre}</td>
+      <td><span class="codi-badge">${a.codi_acta}</span></td>
+      <td class="data-cell">${a.data_acta} ${a.hora_inici}</td>
+      <td class="persona-cell">${persona}</td>
+      <td class="lloc-cell">${a.lloc_adreca || "—"}</td>
+      <td class="agent-cell">${a.tip_instructor}</td>
+    </tr>`;
+  }).join("");
+}
+
+function filterTable() {
+  const q    = document.getElementById("search-input").value.toLowerCase();
+  const codi = document.getElementById("filter-codi").value;
+  const filtered = allActes.filter(a => {
+    if (codi && a.codi_acta !== codi) return false;
+    if (q) {
+      const hay = [a.num_registre, a.persona_cognom1, a.persona_nom,
+                   a.persona_doc_num, a.lloc_adreca, a.tip_instructor]
+                  .filter(Boolean).join(" ").toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  renderTable(filtered);
+}
+
+// ── NOVA ACTA ────────────────────────────────────────────────────
+async function openNova() {
+  const now = new Date();
+  document.getElementById("f-data").value = now.toISOString().slice(0,10);
+  document.getElementById("f-hora-inici").value = now.toTimeString().slice(0,5);
+  document.getElementById("f-hora-fi").value = "";
+  document.getElementById("f-tip-instructor").value = "";
+  document.getElementById("f-tip-secretari").value = "";
+  document.getElementById("f-lloc-adreca").value = "";
+  document.getElementById("f-lloc-municipi").value = "Figaró-Montmany";
+  document.getElementById("f-lloc-comarca").value = "Vallès Oriental";
+  document.getElementById("f-contingut").value = "";
+  document.getElementById("f-article").value = "";
+  document.getElementById("f-persona-display").value = "";
+  document.getElementById("persona-preview").style.display = "none";
+  document.querySelectorAll("#chips-lloc .chip").forEach(c => c.classList.remove("active"));
+  document.getElementById("extra-local").classList.remove("show");
+  document.getElementById("extra-altres").classList.remove("show");
+  llocsChip = null;
+  window._personaData = null;
+  window._titularData = null;
+
+  // Reset camps A-46
+  const a46Fields = [
+    "f-a46-local-display","f-a46-local-hm-id","f-a46-activitat-local",
+    "f-a46-telefon-local","f-a46-titular-nom","f-a46-titular-doc-num",
+    "f-a46-titular-responsable","f-a46-llicencia-activitat",
+    "f-a46-llicencia-num-exp","f-a46-aforament","f-a46-persones-dins",
+    "f-a46-asseguradora","f-a46-polissa-num","f-a46-polissa-import"
+  ];
+  a46Fields.forEach(id => { const el = document.getElementById(id); if(el) el.value = ""; });
+  ["f-a46-llicencia-data","f-a46-polissa-caducitat"].forEach(id => {
+    const el = document.getElementById(id); if(el) el.value = "";
+  });
+  // Radios a "no" per defecte
+  ["a46-llicencia","a46-polissa","a46-obert","a46-musica","a46-begudes","a46-llums"].forEach(name => {
+    const el = document.querySelector(`input[name="${name}"][value="no"]`);
+    if(el) el.checked = true;
+  });
+  // Amagar panells condicionals
+  ["a46-llicencia-detall","a46-llicencia-extra","a46-polissa-extra"].forEach(id => {
+    const el = document.getElementById(id); if(el) el.style.display = "none";
+  });
+  document.getElementById("a46-local-results").style.display = "none";
+
+  // Reset camps A-09
+  ["f-a09-matricula","f-a09-marca","f-a09-model","f-a09-color","f-a09-bastidor",
+   "f-a09-destinacio","f-a09-fets","f-a09-txt-capo","f-a09-txt-pordav","f-a09-txt-pordarr",
+   "f-a09-txt-vidres","f-a09-txt-retros","f-a09-txt-sostre","f-a09-txt-rodes",
+   "f-a09-txt-maleter","f-a09-txt-intdav","f-a09-txt-intdarr","f-a09-txt-danysint",
+   "f-a09-txt-matricules"].forEach(id => { const el=document.getElementById(id); if(el) el.value=""; });
+  document.querySelectorAll("#section-a09 input[type=checkbox]").forEach(c => c.checked=false);
+
+  // Reset camps A-13
+  ["f-a13-matricula","f-a13-marca","f-a13-model","f-a13-color","f-a13-bastidor",
+   "f-a13-exp","f-a13-article","f-a13-text","f-a13-danys",
+   "f-a13-cond-nom","f-a13-cond-cog1","f-a13-cond-cog2","f-a13-cond-doctip",
+   "f-a13-cond-docnum","f-a13-cond-tel","f-a13-cond-adreca","f-a13-cond-muni","f-a13-cond-comarrca"
+  ].forEach(id => { const el=document.getElementById(id); if(el) el.value=""; });
+  document.querySelectorAll("input[name='a13-mesura'], input[name='a13-perm']").forEach(r => r.checked=false);
+
+  // Reset camps A-14
+  ["f-a14-jutjat","f-a14-auto","f-a14-ordre",
+   "f-a14-p1","f-a14-p2","f-a14-p3","f-a14-p4","f-a14-p5","f-a14-p6","f-a14-p7","f-a14-p8",
+   "f-a14-cotxe-marca","f-a14-cotxe-model","f-a14-cotxe-matri","f-a14-cotxe-color",
+   "f-a14-cotxe-tipus","f-a14-cotxe-nac","f-a14-cotxe-km",
+   "f-a14b-nom-estab","f-a14b-altres"
+  ].forEach(id => { const el=document.getElementById(id); if(el) el.value=""; });
+  document.querySelectorAll("input[name='a14-autojudici'][value='no']").forEach(r => r.checked=true);
+  document.querySelectorAll("input[name='a14b-estab']").forEach(r => r.checked=false);
+
+  // Reset camps A-205
+  ["f-a205-raca","f-a205-color","f-a205-xip-num"].forEach(id => {
+    const el = document.getElementById(id); if(el) el.value = "";
+  });
+  ["a205-especie","a205-sexe","a205-talla","a205-pel"].forEach(name => {
+    const radios = document.querySelectorAll(`input[name="${name}"]`);
+    radios.forEach(r => r.checked = false);
+  });
+  const a205NoXip = document.querySelector('input[name="a205-xip"][value="no"]');
+  if(a205NoXip) a205NoXip.checked = true;
+  const xipDetall = document.getElementById("a205-xip-detall");
+  if(xipDetall) xipDetall.style.display = "none";
+
+  // Obtenir número seguent
+  try {
+    const r = await fetch(`${BACKEND}/api/actes/num-seguent`, {
+      headers: {"Authorization": `Bearer ${token}`}
+    });
+    const d = await r.json();
+    const num = d.num_registre || "—";
+    document.getElementById("f-num-preview").innerHTML =
+      `<span style="color:var(--text3)">${num.split("-")[0]}-</span>${num.split("-")[1] || ""}`;
+    document.getElementById("nova-num-hdr").textContent = num;
+    window._nextNum = num;
+  } catch(e) {
+    document.getElementById("f-num-preview").textContent = "—";
+  }
+
+  onCodiChange();
+  openModal("modal-nova");
+}
+
+function onCodiChange() {
+  const codi = document.getElementById("f-codi").value;
+  const showArticle = ["D-OM-1","D-OM-2","D-10","D-10bis"].includes(codi);
+  document.getElementById("section-article").style.display = showArticle ? "block" : "none";
+  document.getElementById("section-a09").style.display  = codi === "A-09"  ? "block" : "none";
+  document.getElementById("section-a13").style.display  = ["A-13","A-13b"].includes(codi) ? "block" : "none";
+  document.getElementById("section-a14").style.display  = ["A-14","A-14b"].includes(codi) ? "block" : "none";
+  document.getElementById("section-a46").style.display  = codi === "A-46"  ? "block" : "none";
+  document.getElementById("section-a205").style.display = ["A-205","A-206"].includes(codi) ? "block" : "none";
+  // Subtítols dinàmics
+  const t13 = document.getElementById("section-a13-title");
+  if(t13) t13.textContent = codi === "A-13b" ? "A-13b · Desprecinte de vehicle" : "A-13 · Precinte de vehicle";
+  const t14 = document.getElementById("section-a14-title");
+  if(t14) t14.textContent = codi === "A-14b" ? "A-14b · Desprecinte de local" : "A-14 · Precinte de local";
+  // Bloc establiment només a A-14b
+  const estab = document.getElementById("section-a14b-estab");
+  if(estab) estab.style.display = codi === "A-14b" ? "block" : "none";
+  // Camp danys només a A-13 (no A-13b)
+  const danys = document.getElementById("section-a13-danys");
+  if(danys) danys.style.display = codi === "A-13" ? "block" : "none";
+}
+
+let localSearchTimer = null;
+async function searchLocal(q) {
+  clearTimeout(localSearchTimer);
+  const box = document.getElementById("a46-local-results");
+  if (!q || q.length < 2) { box.style.display = "none"; return; }
+  localSearchTimer = setTimeout(async () => {
+    try {
+      const r = await fetch(`${BACKEND}/api/actes/local/cerca`, {
+        method: "POST",
+        headers: {"Content-Type":"application/json","Authorization":`Bearer ${token}`},
+        body: JSON.stringify({q})
+      });
+      const d = await r.json();
+      if (!d.ok || !d.locals.length) { box.style.display = "none"; return; }
+      box.innerHTML = d.locals.map(l => `
+        <div onclick="selectLocal(${l.id},'${(l.canonical_name||"").replace(/'/g,"\\'")}','${(l.adreca||"").replace(/'/g,"\\'")}','${(l.telefon||"").replace(/'/g,"\\'")}','${(l.categoria||"").replace(/'/g,"\\'")}');return false"
+          style="padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--border);font-size:12px"
+          onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background=''">
+          <strong>${l.canonical_name}</strong>
+          ${l.adreca ? `<span style="color:var(--text3);margin-left:8px">${l.adreca}</span>` : ""}
+          ${l.categoria ? `<span style="color:var(--accent);margin-left:8px;font-size:10px">${l.categoria}</span>` : ""}
+        </div>`).join("");
+      box.style.display = "block";
+    } catch(e) { box.style.display = "none"; }
+  }, 300);
+}
+
+function selectLocal(id, nom, adreca, telefon, categoria) {
+  document.getElementById("f-a46-local-hm-id").value = id;
+  document.getElementById("f-a46-local-display").value = nom;
+  document.getElementById("a46-local-results").style.display = "none";
+  if (adreca) document.getElementById("f-lloc-adreca").value = adreca;
+  if (telefon) document.getElementById("f-a46-telefon-local").value = telefon;
+  if (categoria) document.getElementById("f-a46-activitat-local").value = categoria;
+}
+
+function clearLocal() {
+  document.getElementById("f-a46-local-hm-id").value = "";
+  document.getElementById("f-a46-local-display").value = "";
+  document.getElementById("a46-local-results").style.display = "none";
+}
+
+function toggleA46(field, show) {
+  if (field === "llicencia") {
+    document.getElementById("a46-llicencia-detall").style.display = show ? "block" : "none";
+    document.getElementById("a46-llicencia-extra").style.display  = show ? "grid"  : "none";
+  } else if (field === "polissa") {
+    document.getElementById("a46-polissa-extra").style.display = show ? "block" : "none";
+  }
+}
+
+function getRadioVal(name) {
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  return el ? el.value : "no";
+}
+
+function getA46CampsExtra() {
+  if (document.getElementById("f-codi").value !== "A-46") return null;
+  return {
+    local_hm_id:          parseInt(document.getElementById("f-a46-local-hm-id").value) || null,
+    // Nom i telèfon del local: si no hi ha HM ID, es guarden com a entrada manual
+    nom_local_manual:     !parseInt(document.getElementById("f-a46-local-hm-id").value)
+                            ? document.getElementById("f-a46-local-display").value || ""
+                            : "",
+    telefon_local:        document.getElementById("f-a46-telefon-local").value || "",
+    activitat_local:      document.getElementById("f-a46-activitat-local").value || "",
+    titular_nom:          document.getElementById("f-a46-titular-nom").value || "",
+    titular_doc_tipus:    document.getElementById("f-a46-titular-doc-tipus").value || "",
+    titular_doc_num:      document.getElementById("f-a46-titular-doc-num").value || "",
+    titular_nom_responsable: document.getElementById("f-a46-titular-responsable").value || "",
+    // Filiació del titular (recollida via modal titular)
+    titular_nom_pare:     (window._titularData && window._titularData.nom_pare) || "",
+    titular_nom_mare:     (window._titularData && window._titularData.nom_mare) || "",
+    titular_naix_data:    (window._titularData && window._titularData.naix_data) || "",
+    titular_naix_loc:     (window._titularData && window._titularData.naix_loc) || "",
+    titular_naix_comarca: (window._titularData && window._titularData.naix_comarca) || "",
+    titular_naix_pais:    (window._titularData && window._titularData.naix_pais) || "Espanya",
+    titular_adreca:       (window._titularData && window._titularData.adreca)
+                            || document.getElementById("f-a46-titular-adreca") && document.getElementById("f-a46-titular-adreca").value
+                            || "",
+    titular_municipi:     (window._titularData && window._titularData.municipi)
+                            || document.getElementById("f-a46-titular-municipi") && document.getElementById("f-a46-titular-municipi").value
+                            || "",
+    titular_comarca:      (window._titularData && window._titularData.comarca) || "",
+    titular_tel:          document.getElementById("f-a46-titular-tel") 
+                            ? document.getElementById("f-a46-titular-tel").value || ""
+                            : "",
+    llicencia:            getRadioVal("a46-llicencia"),
+    llicencia_activitat:  document.getElementById("f-a46-llicencia-activitat").value || "",
+    llicencia_data:       document.getElementById("f-a46-llicencia-data").value || "",
+    llicencia_num_exp:    document.getElementById("f-a46-llicencia-num-exp").value || "",
+    aforament_num:        document.getElementById("f-a46-aforament").value || "",
+    polissa:              getRadioVal("a46-polissa"),
+    asseguradora:         document.getElementById("f-a46-asseguradora").value || "",
+    polissa_num:          document.getElementById("f-a46-polissa-num").value || "",
+    polissa_caducitat:    document.getElementById("f-a46-polissa-caducitat").value || "",
+    polissa_import:       document.getElementById("f-a46-polissa-import").value || "",
+    obert:                getRadioVal("a46-obert"),
+    persones_dins:        document.getElementById("f-a46-persones-dins").value || "",
+    musica:               getRadioVal("a46-musica"),
+    begudes:              getRadioVal("a46-begudes"),
+    llums:                getRadioVal("a46-llums"),
+  };
+}
+
+function chkVal(id) {
+  const el = document.getElementById(id);
+  return el && el.checked ? "si" : "";
+}
+
+function getA09CampsExtra() {
+  if (document.getElementById("f-codi").value !== "A-09") return null;
+  return {
+    cotxe_matricula: document.getElementById("f-a09-matricula")?.value || "",
+    cotxe_marca:     document.getElementById("f-a09-marca")?.value     || "",
+    cotxe_model:     document.getElementById("f-a09-model")?.value     || "",
+    cotxe_color:     document.getElementById("f-a09-color")?.value     || "",
+    cotxe_bastidor:  document.getElementById("f-a09-bastidor")?.value  || "",
+    destinacio:      document.getElementById("f-a09-destinacio")?.value|| "",
+    text_fets:       document.getElementById("f-a09-fets")?.value      || "",
+    v_fas:       chkVal("f-a09-fas"),      v_farsd:    chkVal("f-a09-farsd"),
+    v_capo:      chkVal("f-a09-capo"),     txt_capo:   document.getElementById("f-a09-txt-capo")?.value    || "",
+    v_portes:    chkVal("f-a09-portes"),   txt_portes_dav:  document.getElementById("f-a09-txt-pordav")?.value  || "",
+    v_portesd:   chkVal("f-a09-portesd"), txt_portes_darr: document.getElementById("f-a09-txt-pordarr")?.value || "",
+    v_vidres:    chkVal("f-a09-vidres"),   txt_vidres:  document.getElementById("f-a09-txt-vidres")?.value  || "",
+    v_retro:     chkVal("f-a09-retro"),    txt_retros:  document.getElementById("f-a09-txt-retros")?.value  || "",
+    v_sostre:    chkVal("f-a09-sostre"),   txt_sostre:  document.getElementById("f-a09-txt-sostre")?.value  || "",
+    v_rodes:     chkVal("f-a09-rodes"),    txt_rodes_num: document.getElementById("f-a09-txt-rodes")?.value || "",
+    v_maleter:   chkVal("f-a09-maleter"),  txt_maleter: document.getElementById("f-a09-txt-maleter")?.value || "",
+    v_inter:     chkVal("f-a09-inter"),    txt_int_dav:  document.getElementById("f-a09-txt-intdav")?.value  || "",
+    v_interd:    chkVal("f-a09-interd"),   txt_int_darr: document.getElementById("f-a09-txt-intdarr")?.value || "",
+    v_danys_int: chkVal("f-a09-danysint"), txt_sanys_int: document.getElementById("f-a09-txt-danysint")?.value || "",
+    v_matricules:chkVal("f-a09-matricules"),txt_matricules: document.getElementById("f-a09-txt-matricules")?.value || "",
+    v_obert:     chkVal("f-a09-obert"),
+    v_sip:       chkVal("f-a09-sip"),
+    v_itv:       chkVal("f-a09-itv"),
+    v_noass:     chkVal("f-a09-noass"),
+    v_baixadm:   chkVal("f-a09-baixadm"),
+  };
+}
+
+function getA13CampsExtra() {
+  const codi = document.getElementById("f-codi").value;
+  if (!["A-13","A-13b"].includes(codi)) return null;
+  return {
+    cotxe_matricula: document.getElementById("f-a13-matricula")?.value || "",
+    cotxe_marca:     document.getElementById("f-a13-marca")?.value     || "",
+    cotxe_model:     document.getElementById("f-a13-model")?.value     || "",
+    cotxe_color:     document.getElementById("f-a13-color")?.value     || "",
+    cotxe_bastidor:  document.getElementById("f-a13-bastidor")?.value  || "",
+    mesura:          getRadioValOrEmpty("a13-mesura"),
+    perm_cat:        getRadioValOrEmpty("a13-perm"),
+    multa_exp:       document.getElementById("f-a13-exp")?.value       || "",
+    multa_article:   document.getElementById("f-a13-article")?.value   || "",
+    multa_text:      document.getElementById("f-a13-text")?.value      || "",
+    text_danys:      document.getElementById("f-a13-danys")?.value     || "",
+    cond_nom:        document.getElementById("f-a13-cond-nom")?.value  || "",
+    cond_cognom1:    document.getElementById("f-a13-cond-cog1")?.value || "",
+    cond_cognom2:    document.getElementById("f-a13-cond-cog2")?.value || "",
+    cond_doc_tipus:  document.getElementById("f-a13-cond-doctip")?.value || "",
+    cond_doc_num:    document.getElementById("f-a13-cond-docnum")?.value || "",
+    cond_tel:        document.getElementById("f-a13-cond-tel")?.value  || "",
+    cond_adreca:     document.getElementById("f-a13-cond-adreca")?.value || "",
+    cond_municipi:   document.getElementById("f-a13-cond-muni")?.value || "",
+    cond_comarca:    document.getElementById("f-a13-cond-comarrca")?.value || "",
+  };
+}
+
+function getA14CampsExtra() {
+  const codi = document.getElementById("f-codi").value;
+  if (!["A-14","A-14b"].includes(codi)) return null;
+  return {
+    text_jutjat:      document.getElementById("f-a14-jutjat")?.value   || "",
+    text_num_auto:    document.getElementById("f-a14-auto")?.value     || "",
+    text_ordre:       document.getElementById("f-a14-ordre")?.value    || "",
+    auto_judici:      getRadioValOrEmpty("a14-autojudici"),
+    text_precinte1:   document.getElementById("f-a14-p1")?.value       || "",
+    text_precinte2:   document.getElementById("f-a14-p2")?.value       || "",
+    text_precinte3:   document.getElementById("f-a14-p3")?.value       || "",
+    text_precinte4:   document.getElementById("f-a14-p4")?.value       || "",
+    text_precinte5:   document.getElementById("f-a14-p5")?.value       || "",
+    text_precinte6:   document.getElementById("f-a14-p6")?.value       || "",
+    text_precinte7:   document.getElementById("f-a14-p7")?.value       || "",
+    text_precinte8:   document.getElementById("f-a14-p8")?.value       || "",
+    text_cotxe_marca: document.getElementById("f-a14-cotxe-marca")?.value || "",
+    text_cotxe_model: document.getElementById("f-a14-cotxe-model")?.value || "",
+    text_cotxe_matri: document.getElementById("f-a14-cotxe-matri")?.value || "",
+    text_cotxe_color: document.getElementById("f-a14-cotxe-color")?.value || "",
+    text_cotxe_tipus: document.getElementById("f-a14-cotxe-tipus")?.value || "",
+    text_cotxe_nac:   document.getElementById("f-a14-cotxe-nac")?.value || "",
+    text_cotxe_km:    document.getElementById("f-a14-cotxe-km")?.value  || "",
+    tipus_estab:      getRadioValOrEmpty("a14b-estab"),
+    text_nom_establiment: document.getElementById("f-a14b-nom-estab")?.value || "",
+    text_altres:      document.getElementById("f-a14b-altres")?.value  || "",
+  };
+}
+
+function getRadioValOrEmpty(name) {
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  return el ? el.value : "";
+}
+
+function toggleA205Xip(show) {
+  const el = document.getElementById("a205-xip-detall");
+  if(el) el.style.display = show ? "block" : "none";
+  if(!show) { const n = document.getElementById("f-a205-xip-num"); if(n) n.value = ""; }
+}
+
+function getA205CampsExtra() {
+  if (document.getElementById("f-codi").value !== "A-205") return null;
+  return {
+    animal_especie: getRadioValOrEmpty("a205-especie"),
+    animal_sexe:    getRadioValOrEmpty("a205-sexe"),
+    animal_talla:   getRadioValOrEmpty("a205-talla"),
+    animal_pel:     getRadioValOrEmpty("a205-pel"),
+    animal_raca:    document.getElementById("f-a205-raca")?.value  || "",
+    animal_color:   document.getElementById("f-a205-color")?.value || "",
+    animal_xip:     getRadioValOrEmpty("a205-xip") || "no",
+    animal_xip_num: document.getElementById("f-a205-xip-num")?.value || "",
+  };
+}
+
+// Fusionar camps_extra de A-10 (tipus_acta) + A-46 (dades del local)
+function getCampsExtra() {
+  const base = {
+    tipus_acta: document.getElementById("tipus_acta").value || ""
+  };
+  
+  // Si és A-46, afegir camps específics del local
+  const a09Data = getA09CampsExtra();
+  if (a09Data) return { ...base, ...a09Data };
+
+  const a13Data = getA13CampsExtra();
+  if (a13Data) return { ...base, ...a13Data };
+
+  const a14Data = getA14CampsExtra();
+  if (a14Data) return { ...base, ...a14Data };
+
+  const a46Data = getA46CampsExtra();
+  if (a46Data) return { ...base, ...a46Data };
+
+  const a205Data = getA205CampsExtra();
+  if (a205Data) return { ...base, ...a205Data };
+
+  return base;
+}
+
+function selectChip(group, val, el) {
+  document.querySelectorAll(`#chips-${group} .chip`).forEach(c => c.classList.remove("active"));
+  el.classList.add("active");
+  llocsChip = val;
+  document.getElementById("extra-local").className = "extra-input" + (val === "local" ? " show" : "");
+  document.getElementById("extra-altres").className = "extra-input" + (val === "altres" ? " show" : "");
+}
+
+function preConfirmar() {
+  const tip = document.getElementById("f-tip-instructor").value.trim();
+  const contingut = document.getElementById("f-contingut").value.trim();
+  if (!tip)      { toast("Cal indicar el TIP de l'instructor", "err"); return; }
+  if (!contingut){ toast("El contingut de l'acta és obligatori", "err"); return; }
+
+  const codi    = document.getElementById("f-codi").value;
+  const data    = document.getElementById("f-data").value;
+  const hora    = document.getElementById("f-hora-inici").value;
+  const adreca  = document.getElementById("f-lloc-adreca").value || "—";
+  const persona = document.getElementById("f-persona-display").value || "No identificada";
+
+  document.getElementById("confirm-summary").innerHTML = `
+    <div class="confirm-card">
+      <div class="confirm-row"><span class="lbl">Núm. registre</span><span class="val">${window._nextNum || "—"}</span></div>
+      <div class="confirm-row"><span class="lbl">Codi acta</span><span class="val">${codi}</span></div>
+      <div class="confirm-row"><span class="lbl">Data / Hora</span><span class="val">${data} ${hora}</span></div>
+      <div class="confirm-row"><span class="lbl">Instructor</span><span class="val">TIP ${tip}</span></div>
+      <div class="confirm-row"><span class="lbl">Lloc</span><span class="val">${adreca}</span></div>
+      <div class="confirm-row"><span class="lbl">Persona</span><span class="val">${persona}</span></div>
+    </div>`;
+  closeModal("modal-nova");
+  openModal("modal-confirm");
+}
+
+async function confirmarActa() {
+  const btn = document.getElementById("btn-confirmar");
+  btn.disabled = true; btn.textContent = "Creant...";
+
+  // Validar token actiu (sense password - sistema Bitàcola)
+  try {
+    const rv = await fetch(`${BACKEND}/api/actes/auth/confirm`, {
+      method: "POST", headers: {"Content-Type":"application/json","Authorization":`Bearer ${token}`},
+      body: JSON.stringify({})
+    });
+    const dv = await rv.json();
+    if (!dv.ok) {
+      toast("Sessió no vàlida. Torna a identificar-te.", "err");
+      btn.disabled = false; btn.textContent = "✓ Crear acta";
+      return;
+    }
+  } catch(e) {
+    toast("Error de connexió", "err");
+    btn.disabled = false; btn.textContent = "✓ Crear acta";
+    return;
+  }
+
+  // Construir payload
+  const pd = window._personaData || {};
+  const llocsNom = llocsChip === "local"
+    ? document.getElementById("f-lloc-local-nom").value
+    : llocsChip === "altres"
+    ? document.getElementById("f-lloc-altres-nom").value
+    : null;
+
+  const payload = {
+    codi_acta:        document.getElementById("f-codi").value,
+    titol_acta:       document.getElementById("f-codi").options[document.getElementById("f-codi").selectedIndex].text.split(" · ")[1] || "Acta",
+    data_acta:        document.getElementById("f-data").value,
+    hora_inici:       document.getElementById("f-hora-inici").value,
+    hora_fi:          document.getElementById("f-hora-fi").value || null,
+    tip_instructor:   document.getElementById("f-tip-instructor").value.trim(),
+    tip_secretari:    document.getElementById("f-tip-secretari").value.trim() || null,
+    destinacio:       document.getElementById("f-destinacio").value,
+    lloc_adreca:      document.getElementById("f-lloc-adreca").value || null,
+    lloc_municipi:    document.getElementById("f-lloc-municipi").value,
+    lloc_comarca:     document.getElementById("f-lloc-comarca").value,
+    lloc_tipus:       llocsChip || null,
+    lloc_nom_extra:   llocsNom || null,
+    persona_cognom1:  pd.cognom1 || null,
+    persona_cognom2:  pd.cognom2 || null,
+    persona_nom:      pd.nom || null,
+    persona_doc_tipus:pd.doc_tipus || null,
+    persona_doc_num:  pd.doc_num || null,
+    persona_hm_id:    pd.id || null,
+    persona_naix_data:pd.naix_data || null,
+    persona_naix_loc: pd.naix_loc || null,
+    persona_naix_comarca: pd.naix_comarca || null,
+    persona_naix_pais:pd.naix_pais || "Espanya",
+    persona_nom_pare: pd.pare || null,
+    persona_nom_mare: pd.mare || null,
+    persona_adreca:   pd.adr || null,
+    persona_municipi: pd.mun || null,
+    persona_comarca:  pd.com || null,
+    persona_tel:      pd.tel || null,
+    article_infringit:document.getElementById("f-article").value || null,
+    text_fets:        document.getElementById("f-contingut").value.trim(),
+    camps_extra:      getCampsExtra(),
+  };
+
+  try {
+    const r = await fetch(`${BACKEND}/api/actes/`, {
+      method: "POST",
+      headers: {"Content-Type":"application/json","Authorization":`Bearer ${token}`},
+      body: JSON.stringify(payload)
+    });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error);
+    closeModal("modal-confirm");
+    toast(`Acta ${d.num_registre} creada correctament`, "ok");
+    await loadActes();
+  } catch(e) {
+    toast("Error creant l'acta: " + e.message, "err");
+  }
+  btn.disabled = false; btn.textContent = "✓ Crear acta";
+}
+
+// ── PERSONA MODAL ────────────────────────────────────────────────
+function openPersonaModal() {
+  document.getElementById("sherlock-q").value = "";
+  document.getElementById("sherlock-results").innerHTML = "";
+  openModal("modal-persona");
+}
+
+function sherlockSearch() {
+  clearTimeout(sherlockTimer);
+  const q = document.getElementById("sherlock-q").value.trim();
+  if (q.length < 2) { document.getElementById("sherlock-results").innerHTML = ""; return; }
+  sherlockTimer = setTimeout(async () => {
+    try {
+      const r = await fetch(`${BACKEND}/api/actes/persona/cerca`, {
+        method: "POST",
+        headers: {"Content-Type":"application/json","Authorization":`Bearer ${token}`},
+        body: JSON.stringify({q})
+      });
+      const d = await r.json();
+      const res = document.getElementById("sherlock-results");
+      if (!d.persones || !d.persones.length) {
+        res.innerHTML = `<div style="font-size:11px;color:var(--text3);font-family:var(--mono);padding:6px">Cap resultat a hermano_mayor.db</div>`;
+        return;
+      }
+      res.innerHTML = d.persones.map(p => `
+        <div onclick="selectPersona(${JSON.stringify(p).replace(/"/g,'&quot;')})"
+          style="padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);margin-bottom:4px;cursor:pointer;font-size:12px">
+          <strong>${p.apellidos}, ${p.nombre}</strong>
+          ${p.dni ? ` · <span style="font-family:var(--mono)">${p.dni}</span>` : ""}
+          ${p.direccion ? ` · ${p.direccion}` : ""}
+        </div>`).join("");
+    } catch(e) {}
+  }, 350);
+}
+
+function selectPersona(p) {
+  const parts = (p.apellidos || "").split(" ");
+  document.getElementById("p-cog1").value = parts[0] || "";
+  document.getElementById("p-cog2").value = parts.slice(1).join(" ") || "";
+  document.getElementById("p-nom").value  = p.nombre || "";
+  document.getElementById("p-doc-num").value = p.dni || "";
+  document.getElementById("p-adr").value  = p.direccion || "";
+  document.getElementById("p-tel").value  = p.telefono || "";
+  document.getElementById("p-pare").value = p.nombre_padre || "";
+  document.getElementById("p-mare").value = p.nombre_madre || "";
+  if (p.fecha_nacimiento) {
+    const _fn = p.fecha_nacimiento;
+    const _fp = _fn.split('/');
+    // hermano_mayor.db retorna DD/MM/YYYY — input[type=date] necessita YYYY-MM-DD
+    document.getElementById('p-naix-data').value =
+      (_fp.length === 3 && _fp[2].length === 4)
+        ? `${_fp[2]}-${_fp[1].padStart(2,'0')}-${_fp[0].padStart(2,'0')}`
+        : _fn;
+  }
+  window._selectedPersonaId = p.id || null;
+  document.getElementById("sherlock-results").innerHTML =
+    `<div style="font-size:11px;color:var(--green);font-family:var(--mono);padding:6px">✓ Dades importades de Sherlock</div>`;
+}
+
+function confirmarPersona() {
+  const cog1 = document.getElementById("p-cog1").value.trim();
+  const cog2 = document.getElementById("p-cog2").value.trim();
+  const nom  = document.getElementById("p-nom").value.trim();
+  if (!cog1 || !nom) { toast("Cal primer cognom i nom", "err"); return; }
+
+  window._personaData = {
+    id: window._selectedPersonaId || null,
+    cognom1: cog1.toUpperCase(), cognom2: cog2.toUpperCase(), nom: nom.toUpperCase(),
+    doc_tipus: document.getElementById("p-doc-tipus").value,
+    doc_num:   document.getElementById("p-doc-num").value.trim(),
+    naix_data: document.getElementById("p-naix-data").value,
+    naix_loc:  document.getElementById("p-naix-loc").value.trim(),
+    naix_comarca: document.getElementById("p-naix-comarca").value.trim(),
+    naix_pais: document.getElementById("p-naix-pais").value.trim() || "Espanya",
+    pare:      document.getElementById("p-pare").value.trim(),
+    mare:      document.getElementById("p-mare").value.trim(),
+    adr:       document.getElementById("p-adr").value.trim(),
+    mun:       document.getElementById("p-mun").value.trim(),
+    com:       document.getElementById("p-com").value.trim(),
+    tel:       document.getElementById("p-tel").value.trim(),
+  };
+
+  const display = `${window._personaData.cognom1}${cog2 ? " " + window._personaData.cognom2 : ""}, ${window._personaData.nom}`;
+  document.getElementById("f-persona-display").value = display;
+  const prev = document.getElementById("persona-preview");
+  const docStr = window._personaData.doc_num ? ` · ${window._personaData.doc_tipus}: ${window._personaData.doc_num}` : "";
+  prev.style.display = "block";
+  prev.textContent = display + docStr;
+
+  // Alta a hermano_mayor si cal
+  if (document.getElementById("p-alta-hm").checked && window._personaData.doc_num) {
+    fetch(`${BACKEND}/api/actes/persona/alta`, {
+      method: "POST",
+      headers: {"Content-Type":"application/json","Authorization":`Bearer ${token}`},
+      body: JSON.stringify({
+        nombre: window._personaData.nom,
+        apellidos: `${window._personaData.cognom1}${cog2 ? " " + window._personaData.cognom2 : ""}`,
+        dni: window._personaData.doc_num,
+        fecha_nacimiento: window._personaData.naix_data,
+        lugar_nacimiento: window._personaData.naix_loc,
+        direccion: window._personaData.adr,
+        municipio: window._personaData.mun,
+        telefono: window._personaData.tel,
+      })
+    }).then(r => r.json()).then(d => {
+      if (d.ok) toast("Persona donada d'alta a hermano_mayor.db", "ok");
+    }).catch(() => {});
+  }
+
+  closeModal("modal-persona");
+}
+let previewActaId = null;
+
+async function generarPreview() {
+  if (!previewActaId) return;
+  const num = document.getElementById("detall-num").textContent;
+  document.getElementById("preview-title").textContent = `Previsualització · ${num}`;
+  document.getElementById("preview-content").innerHTML = '<div style="text-align:center;padding:2rem;color:#888;font-family:monospace;font-size:12px">Generant previsualització...</div>';
+  openModal("modal-preview");
+  try {
+    const r = await fetch(`${BACKEND}/api/actes/${previewActaId}/preview`, {
+      headers: {"Authorization": `Bearer ${token}`}
+    });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error);
+    document.getElementById("preview-content").innerHTML = d.html;
+  } catch(e) {
+    document.getElementById("preview-content").innerHTML = `<div style="color:red;padding:1rem;font-family:monospace">Error: ${e.message}</div>`;
+  }
+}
+
+function downloadWord() {
+  if (!previewActaId) return;
+  const num = document.getElementById("detall-num").textContent;
+  fetch(`${BACKEND}/api/actes/${previewActaId}/generar-word`, {
+    headers: {"Authorization": `Bearer ${token}`}
+  }).then(r => {
+    if (!r.ok) throw new Error("Error generant el Word");
+    return r.blob();
+  }).then(blob => {
+    const url = URL.createObjectURL(blob);
+    const a   = document.createElement("a");
+    a.href = url;
+    a.download = `${num}.docx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast("Word descarregat correctament", "ok");
+  }).catch(e => toast("Error: " + e.message, "err"));
+}
+// ── DETALL ───────────────────────────────────────────────────────
+async function openDetall(id) {
+  previewActaId = id;
+  openModal("modal-detall");
+  document.getElementById("detall-body").innerHTML = `<div class="loading">Carregant...</div>`;
+  try {
+    const r = await fetch(`${BACKEND}/api/actes/${id}`, {
+      headers: {"Authorization": `Bearer ${token}`}
+    });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error);
+    const a = d.acta;
+    document.getElementById("detall-num").textContent = a.num_registre;
+    const persona = a.persona_cognom1
+      ? `${a.persona_cognom1}${a.persona_cognom2 ? " " + a.persona_cognom2 : ""}, ${a.persona_nom || ""}${a.persona_doc_num ? " · " + (a.persona_doc_tipus||"DNI") + ": " + a.persona_doc_num : ""}`
+      : "No identificada";
+    const audit = (d.audit || []).filter(x => x.accio !== "CONSULTAR").map(x =>
+      `<div class="audit-entry audit-${x.accio.toLowerCase()}">
+        <div class="ae-dot"></div>
+        <div class="ae-text">${x.accio} per ${x.agent}${x.detall ? " — " + x.detall : ""}</div>
+        <div class="ae-ts">${x.ts}</div>
+      </div>`).join("");
+    document.getElementById("detall-body").innerHTML = `
+      <div class="detall-grid">
+        <div class="detall-field"><div class="lbl">Codi acta</div><div class="val"><span class="codi-badge">${a.codi_acta}</span></div></div>
+        <div class="detall-field"><div class="lbl">Data / Hora</div><div class="val">${a.data_acta} ${a.hora_inici}${a.hora_fi ? " → " + a.hora_fi : ""}</div></div>
+        <div class="detall-field"><div class="lbl">Instructor</div><div class="val" style="font-family:var(--mono)">TIP ${a.tip_instructor}${a.tip_secretari ? " / " + a.tip_secretari : ""}</div></div>
+        <div class="detall-field"><div class="lbl">Destinació</div><div class="val">${a.destinacio || "—"}</div></div>
+        <div class="detall-field"><div class="lbl">Lloc</div><div class="val">${a.lloc_adreca || "—"}${a.lloc_tipus ? " (" + a.lloc_tipus + ")" : ""}</div></div>
+        <div class="detall-field"><div class="lbl">Municipi</div><div class="val">${a.lloc_municipi}</div></div>
+        <div class="detall-field" style="grid-column:1/-1"><div class="lbl">Persona</div><div class="val">${persona}</div></div>
+        ${a.article_infringit ? `<div class="detall-field" style="grid-column:1/-1"><div class="lbl">Article infringit</div><div class="val" style="font-family:var(--mono)">${a.article_infringit}</div></div>` : ""}
+      </div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Contingut</div>
+      <div class="detall-text">${a.text_fets}</div>
+      ${audit ? `<div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin:1rem 0 8px">Traçabilitat</div>${audit}` : ""}
+    `;
+  } catch(e) {
+    document.getElementById("detall-body").innerHTML = `<div class="empty-state">Error: ${e.message}</div>`;
+  }
+}
+
+// ── HELPERS ──────────────────────────────────────────────────────
+function openModal(id)  { document.getElementById(id).classList.add("open") }
+function closeModal(id) { document.getElementById(id).classList.remove("open") }
+function toggleFold(id) {
+  const el = document.getElementById(id);
+  const fi = document.getElementById("fi-" + id);
+  const open = el.classList.toggle("open");
+  fi.textContent = open ? "▼" : "▶";
+}
+let toastTimer;
+function toast(msg, type) {
+  const el = document.getElementById("toast");
+  el.textContent = msg; el.className = `toast show ${type||""}`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 3500);
+}
+
+
+// ── TITULAR MODAL (A-46 filiació) ───────────────────────────────
+function openTitularModal() {
+  // Pre-omplir si ja hi ha dades
+  const d = window._titularData || {};
+  document.getElementById("t-naix-data").value    = d.naix_data    || "";
+  document.getElementById("t-naix-loc").value     = d.naix_loc     || "";
+  document.getElementById("t-naix-comarca").value = d.naix_comarca || "";
+  document.getElementById("t-naix-pais").value    = d.naix_pais    || "Espanya";
+  document.getElementById("t-nom-pare").value     = d.nom_pare     || "";
+  document.getElementById("t-nom-mare").value     = d.nom_mare     || "";
+  openModal("modal-titular");
+}
+
+function confirmarTitular() {
+  window._titularData = {
+    naix_data:    document.getElementById("t-naix-data").value,
+    naix_loc:     document.getElementById("t-naix-loc").value.trim(),
+    naix_comarca: document.getElementById("t-naix-comarca").value.trim(),
+    naix_pais:    document.getElementById("t-naix-pais").value.trim() || "Espanya",
+    nom_pare:     document.getElementById("t-nom-pare").value.trim(),
+    nom_mare:     document.getElementById("t-nom-mare").value.trim(),
+    adreca:       document.getElementById("f-a46-titular-adreca") 
+                    ? document.getElementById("f-a46-titular-adreca").value.trim() : "",
+    municipi:     document.getElementById("f-a46-titular-municipi")
+                    ? document.getElementById("f-a46-titular-municipi").value.trim() : "",
+  };
+  closeModal("modal-titular");
+  toast("Dades filiació titular guardades", "ok");
+}
+
+document.addEventListener("click", e => {
+  ["modal-nova","modal-confirm","modal-persona","modal-detall","modal-titular"].forEach(id => {
+    const overlay = document.getElementById(id);
+    if (e.target === overlay) closeModal(id);
+  });
+});
+
+checkSession();
+</script>
+</body>
+</html>
